@@ -1,0 +1,27 @@
+// parti google
+//creer un token d'autorisation
+https://accounts.google.com/o/oauth2/auth?client_id=891996703134-k27shhvd3ungb3hfp2b874mn9oi1pnss.apps.googleusercontent.com&redirect_uri=http://localhost&response_type=code&scope=https://www.googleapis.com/auth/gmail.readonly&access_type=offline
+
+//lien reponse
+
+http://localhost/?code=4%2F0AfJohXmGUEEj2BGuyJwtf3o-bU6HD7pUcevgswEmCZ1ocTyoONlI1vshXS5npQPH7XBpsA&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly
+
+//lien pour obtenir le token d'acces
+curl --request POST \
+  --data "code=4%2F0AfJohXmGUEEj2BGuyJwtf3o-bU6HD7pUcevgswEmCZ1ocTyoONlI1vshXS5npQPH7XBpsA&client_id=891996703134-k27shhvd3ungb3hfp2b874mn9oi1pnss.apps.googleusercontent.com&client_secret=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&redirect_uri=http://localhost&grant_type=authorization_code" \
+  https://oauth2.googleapis.com/token
+
+//get tout la liste des emails
+curl --request GET \
+  --header "Authorization: Bearer VOTRE_ACCESS_TOKEN" \
+  https://gmail.googleapis.com/gmail/v1/users/me/messages
+
+  curl --request GET \
+    --header "Authorization: Bearer ya29.a0AfB_byDNQy0GCQWoDD3si2FqCUsmOmBTL37GrdvfSnxY_S1dXWlY9UCn5DzrriKnOWbLiO7arFuiv-DGqHtB-y8ex93MU2bq-ftMyyf8iEHJZ5Mz_i1Rtm18GIA1Hn1FNPqTTg5MhHWOVgFwBKpsxbqX1HL91M3piPGPaCgYKAeMSARMSFQHGX2MiKFZveQfWewfMZJ-MDdB2vg0171" \
+    https://gmail.googleapis.com/gmail/v1/users/me/messages
+
+//get un email
+
+curl --request GET \
+  --header "Authorization: Bearer ya29.a0AfB_byDNQy0GCQWoDD3si2FqCUsmOmBTL37GrdvfSnxY_S1dXWlY9UCn5DzrriKnOWbLiO7arFuiv-DGqHtB-y8ex93MU2bq-ftMyyf8iEHJZ5Mz_i1Rtm18GIA1Hn1FNPqTTg5MhHWOVgFwBKpsxbqX1HL91M3piPGPaCgYKAeMSARMSFQHGX2MiKFZveQfWewfMZJ-MDdB2vg0171" \
+  https://gmail.googleapis.com/gmail/v1/users/me/messages/18ca1fb31f66eb65
