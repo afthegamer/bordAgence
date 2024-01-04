@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Google\Client;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GoogleClientService
 {
@@ -20,5 +21,16 @@ class GoogleClientService
 	public function getClient(): Client
 	{
 		return $this->client;
+	}
+
+	public function refreshTokenIfNeeded(SessionInterface $session)
+	{
+		if ($this->client->isAccessTokenExpired()) {
+			$refreshToken = $session->get('refresh_token');
+			if ($refreshToken) {
+				$this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+				$session->set('access_token', $this->client->getAccessToken());
+			}
+		}
 	}
 }
