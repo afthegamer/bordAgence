@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{#{% block title %}Hello GoogleController!{% endblock %}#}
+
+{% block body %}
+
+{#<div class="example-wrapper">#}
+{#    <h1>Hello {{ controller_name }}! ✅</h1>#}
+
+{#    This friendly message is coming from:#}
+{#    <ul>#}
+{#        <li>Your controller at <code><a href="{{ '/home/bdossantos/bordAgence/src/Controller/GoogleController.php'|file_link(0) }}">src/Controller/GoogleController.php</a></code></li>#}
+{#        <li>Your template at <code><a href="{{ '/home/bdossantos/bordAgence/templates/google/index.html.twig'|file_link(0) }}">templates/google/index.html.twig</a></code></li>#}
+{#    </ul>#}
+{#</div>#}
+{#{% endblock %}#}
+{#{% extends 'base.html.twig' %}#}
+
+{#{% block body %}#}
+    <h1>Email Content</h1>
+    {% if emailContent %}
+        <div>
+            {{ emailContent|raw }}
+        </div>
+    {% else %}
+        <p>No email content available.</p>
+    {% endif %}
+{% endblock %}
