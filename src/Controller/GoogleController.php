@@ -20,17 +20,34 @@ class GoogleController extends AbstractController
 	public function __construct(private GoogleClientService $googleClientService)
 	{}
 
+
 	#[Route('/google', name: 'google_index')]
 	public function index(SessionInterface $session, EmailService $emailService): Response
 	{
+		$this->googleClientService->refreshTokenIfNeeded($session);
+
 		$accessToken = $session->get('access_token');
 		if ($accessToken) {
 			$emailService->setAccessToken($accessToken);
 
-			$emailContent = $emailService->getLatestEmailContent();
+			// Adresses email pour le filtrage
+			$addresses = [
+				'powertools-list@clever-age.com',
+				'all@clever-age.com',
+				'omartinerie@clever-age.com',
+				'fbon@clever-age.com'
+			];
+			// Ajoutez ici vos mots-clés ou phrases
+			$subjectFilters = [
+				'Démos du jour et à venir',
+				'Démos passées et à venir',
+				'bilan',
+			];
+
+			$emails = $emailService->getEmailsFromLastDays($addresses,$subjectFilters);
 
 			return $this->render('google/index.html.twig', [
-				'emailContent' => $emailContent,
+				'emails' => $emails,
 			]);
 		}
 
@@ -40,40 +57,35 @@ class GoogleController extends AbstractController
 
 
 
-
 	#[Route('/google/login', name: 'google_login')]
 	public function googleLogin()
 	{
 		$client = $this->googleClientService->getClient();
+		$client->setAccessType('offline');
+		$client->setPrompt('consent');
 		$authUrl = $client->createAuthUrl();
 
 		return $this->redirect($authUrl);
 	}
 
+
 	#[Route('/callback', name: 'google_callback', methods: ['GET'])]
 	public function googleCallback(Request $request, SessionInterface $session)
 	{
 		$code = $request->query->get('code');
-
 		if ($code) {
-			// Échange du code d'autorisation contre un token d'accès
 			$accessToken = $this->googleClientService->getClient()->fetchAccessTokenWithAuthCode($code);
-
-			if (array_key_exists('error', $accessToken)) {
-				// Gérer l'erreur
-				return $this->redirectToRoute('google_login');
+			if (!array_key_exists('error', $accessToken)) {
+				$session->set('access_token', $accessToken['access_token']);
+				if (isset($accessToken['refresh_token'])) {
+					$session->set('refresh_token', $accessToken['refresh_token']);
+				}
+				return $this->redirectToRoute('google_index');
 			}
-
-			$this->googleClientService->getClient()->setAccessToken($accessToken);
-
-			// Stocker le token dans la session
-			$session->set('access_token', $accessToken);
-
-			return $this->redirectToRoute('google_index');
 		}
-
 		return $this->redirectToRoute('google_login');
 	}
+
 	public function getEmails(Client $client)
 	{
 		try {
@@ -102,29 +114,6 @@ class GoogleController extends AbstractController
 			// Gestion des erreurs
 			return new Response('Erreur lors de la récupération des emails : ' . $e->getMessage());
 		}
-	}
-	private function getGmailMessage($service, $userId, $messageId) {
-		$message = $service->users_messages->get($userId, $messageId);
-		$messagePayload = $message->getPayload();
-		$parts = $messagePayload->getParts();
-
-		$body = $this->getPartBody($parts);
-
-		return $body;
-	}
-
-	private function getPartBody($parts) {
-		foreach ($parts as $part) {
-			if ($part->getBody()->getSize() > 0) {
-				return base64_decode(strtr($part->getBody()->getData(), '-_', '+/'));
-			}
-
-			if ($part->getParts()) {
-				return $this->getPartBody($part->getParts());
-			}
-		}
-
-		return null;
 	}
 
 

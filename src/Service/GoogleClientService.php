@@ -28,8 +28,14 @@ class GoogleClientService
 		if ($this->client->isAccessTokenExpired()) {
 			$refreshToken = $session->get('refresh_token');
 			if ($refreshToken) {
-				$this->client->fetchAccessTokenWithRefreshToken($refreshToken);
-				$session->set('access_token', $this->client->getAccessToken());
+				$newAccessToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+				if (!array_key_exists('error', $newAccessToken)) {
+					$session->set('access_token', $newAccessToken['access_token']);
+					// Mettre à jour le refresh_token si un nouveau est fourni
+					if (isset($newAccessToken['refresh_token'])) {
+						$session->set('refresh_token', $newAccessToken['refresh_token']);
+					}
+				}
 			}
 		}
 	}
