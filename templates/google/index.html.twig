@@ -1,23 +1,74 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Tableau de Bord{% endblock %}
+
 {% block body %}
     <div class="container mt-4">
-        <h2>Emails des 30 derniers jours</h2>
-        {% if emails|length > 0 %}
-            <div class="list-group">
-                {% for email in emails %}
-                    <div class="list-group-item list-group-item-action flex-column align-items-start">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ email.subject }}</h5>
-                            <small>{{ email.date }}</small>
-                        </div>
-                        <p class="mb-1">From: {{ email.from }}</p>
-                        <div class="email-content" style="overflow-wrap: break-word;">{{ email.content|raw }}</div>
+        <!-- Section Date -->
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-8">
+                <div class="card text-white bg-primary mb-3 text-center shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Date Actuelle</h5>
+                        <p class="card-text" id="currentTime" style="font-size: 1.5em; font-weight: bold;">
+                            <!-- Le contenu de cette div sera remplacé par le script JavaScript -->
+                        </p>
                     </div>
-                {% endfor %}
+                </div>
             </div>
-        {% else %}
-            <p>Aucun email trouvé.</p>
-        {% endif %}
+        </div>
+
+        <!-- Sections Emails Gmail et Posts LinkedIn -->
+        <div class="row mb-4">
+            <!-- Section Emails Gmail -->
+            <div class="col-md-6">
+                <div class="card shadow bg-light mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="m-0">Emails Gmail</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for email in emails %}
+                            <li class="list-group-item my-2 shadow bg-white">
+                                <strong>De:</strong> {{ email.from }} <br>
+                                <strong>Sujet:</strong> {{ email.subject }} <br>
+                                {{ email.content|raw }}
+                            </li>
+                        {% else %}
+                            <li class="list-group-item my-2 shadow bg-white">
+                                Aucun email trouvé.
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section Posts LinkedIn -->
+            <div class="col-md-6">
+                <div class="card shadow bg-light mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="m-0">Posts LinkedIn</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>Posté par:</strong> Alice Martin <br>
+                            <small>Découvrez les dernières tendances en matière d'intelligence artificielle...</small>
+                        </li>
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>Posté par:</strong> Lucas Bernard <br>
+                            <small>Retour sur mon expérience en tant que développeur freelance...</small>
+                        </li>
+                        <!-- Ajoutez plus de posts LinkedIn ici si nécessaire -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Autres sections en deux colonnes ici... -->
+
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/dateTime.js') }}"></script>
+    <!-- Autres scripts JS si nécessaire -->
 {% endblock %}

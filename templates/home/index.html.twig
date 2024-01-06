@@ -1,20 +1,72 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Tableau de Bord{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container mt-4">
+        <!-- Section Date -->
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-8">
+                <div class="card text-white bg-primary mb-3 text-center shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Date Actuelle</h5>
+                        <p class="card-text" id="currentTime" style="font-size: 1.5em; font-weight: bold;">
+                            <!-- Le contenu de cette div sera remplacé par le script JavaScript -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-    <!-- Emplacement pour afficher la date et l'heure -->
-    <div id="currentTime" class="p-3 mb-2 bg-light text-dark"></div>
+        <!-- Sections Emails Gmail et Posts LinkedIn -->
+        <div class="row mb-4">
+            <!-- Section Emails Gmail -->
+            <div class="col-md-6">
+                <div class="card shadow bg-light mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="m-0">Emails Gmail</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>De:</strong> Jean Dupont <br>
+                            <strong>Sujet:</strong> Réunion de projet le 10/01 <br>
+                            Cher collègue, pourrions-nous nous rencontrer pour discuter du projet XYZ...
+                        </li>
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>De:</strong> Marie Curie <br>
+                            <strong>Sujet:</strong> Invitation à la conférence scientifique <br>
+                            Bonjour, je suis ravie de vous inviter à la conférence internationale sur...
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-    <!-- Inclusion du script JavaScript -->
+            <!-- Section Posts LinkedIn -->
+            <div class="col-md-6">
+                <div class="card shadow bg-light mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="m-0">Posts LinkedIn</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>Posté par:</strong> Alice Martin <br>
+                            <small>Découvrez les dernières tendances en matière d'intelligence artificielle et leur impact sur l'industrie...</small>
+                        </li>
+                        <li class="list-group-item my-2 shadow bg-white">
+                            <strong>Posté par:</strong> Lucas Bernard <br>
+                            <small>Retour sur mon expérience en tant que développeur freelance : les hauts et les bas...</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vous pouvez continuer à ajouter d'autres sections en deux colonnes ici... -->
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
     <script src="{{ asset('js/dateTime.js') }}"></script>
-
-</div>
+    <!-- ... Autres scripts JS si nécessaire ... -->
 {% endblock %}

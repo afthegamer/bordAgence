@@ -167,9 +167,25 @@ class EmailService
 	private function convertPlainTextToHtml($plainText)
 	{
 		$htmlContent = htmlspecialchars($plainText, ENT_QUOTES, 'UTF-8');
+
+		// Gras : **texte**
+		$htmlContent = preg_replace('/\*\*([^\*]+)\*\*/', '<span class="font-italic">$1</span>', $htmlContent);
+
+		// Italique : *texte*
+		$htmlContent = preg_replace('/\*([^\*]+)\*/', '<span class=" fw-bold ">$1</span>', $htmlContent);
+
+		// Mettre en évidence les liens
+		$htmlContent = preg_replace('/(https?:\/\/[^\s]+)/', '<span class="text-info fw-bold">$1</span>', $htmlContent);
+
 		$htmlContent = preg_replace('/(\r\n|\r|\n)/', '<br>', $htmlContent);
+
 		return $htmlContent;
 	}
+
+
+
+
+
 
 
 
