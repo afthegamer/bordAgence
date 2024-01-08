@@ -29,7 +29,6 @@ class LinkedInController extends AbstractController
 
 		if (!$accessToken) {
 			if ($request->query->get('code')) {
-				// Vérification du token CSRF
 				$csrfToken = $request->query->get('state');
 				$sessionCsrfToken = $session->get('linkedin_csrf_token');
 				if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('linkedin_auth', $csrfToken)) || $csrfToken !== $sessionCsrfToken) {
@@ -38,50 +37,49 @@ class LinkedInController extends AbstractController
 
 				$accessToken = $this->getAccessToken($request->query->get('code'));
 				$session->set('linkedin_access_token', $accessToken);
+
+				return $this->redirectToRoute('linkedin_posts');
 			} else {
 				return $this->redirectToRoute('linkedin_oauth');
 			}
 		}
 
+		// Récupération des posts de l'organisation
 		$organizationId = $_ENV['LINKEDIN_ORGANIZATION_ID'];
-		$url = "https://api.linkedin.com/v2/shares?q=owners&owners=urn:li:organization:$organizationId&count=12&sortBy=LAST_MODIFIED";
-
-		$response = $this->httpClient->request('GET', $url, [
+		$postsUrl = "https://api.linkedin.com/v2/shares?q=owners&owners=urn:li:organization:$organizationId&count=12&sortBy=LAST_MODIFIED";
+		$postsResponse = $this->httpClient->request('GET', $postsUrl, [
 			'headers' => [
 				'Authorization' => 'Bearer ' . $accessToken,
 			],
 		]);
+		$posts = $postsResponse->toArray();
 
-		$posts = $response->toArray();
+		// Récupération du nom de l'organisation
+		$organizationUrl = "https://api.linkedin.com/v2/organizations/$organizationId";
+		$organizationResponse = $this->httpClient->request('GET', $organizationUrl, [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $accessToken,
+			],
+		]);
+		$organizationData = $organizationResponse->toArray();
+		$organizationName = $organizationData['localizedName'] ?? 'Nom Inconnu';
+
+		// Récupération du logo de l'organisation
+		$logoUrn = $organizationData['logoV2']['original'] ?? null;
+		$logoUrl = json_decode($this->getOrganizationLogo($accessToken, $logoUrn));
 
 		return $this->render('linkedin/posts.html.twig', [
 			'posts' => $posts['elements'],
+			'organizationName' => $organizationName,
+			'logoUrl' => $logoUrl,
 		]);
 	}
 
-//	#[Route('/linkedin/oauth', name: 'linkedin_oauth')]
-//	public function redirectToLinkedIn(Request $request): Response
-//	{
-//		// Générer un token CSRF
-//		$csrfToken = $this->csrfTokenManager->getToken('linkedin_auth')->getValue();
-//		$request->getSession()->set('linkedin_csrf_token', $csrfToken);
-//
-//		$url = "https://www.linkedin.com/oauth/v2/authorization";
-//		$queryParams = http_build_query([
-//			'response_type' => 'code',
-//			'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
-//			'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
-//			'scope' => 'r_liteprofile', // Retirez 'r_emailaddress' si vous n'en avez pas besoin
-//			'state' => $csrfToken,
-//		]);
-//
-//		return $this->redirect($url . '?' . $queryParams);
-//	}
+
 
 	#[Route('/linkedin/oauth', name: 'linkedin_oauth')]
 	public function redirectToLinkedIn(Request $request): Response
 	{
-		// Générer un token CSRF
 		$csrfToken = $this->csrfTokenManager->getToken('linkedin_auth')->getValue();
 		$request->getSession()->set('linkedin_csrf_token', $csrfToken);
 
@@ -90,29 +88,59 @@ class LinkedInController extends AbstractController
 			'response_type' => 'code',
 			'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
 			'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
-			'scope' => 'openid profile w_member_social email',
-			'state' => $csrfToken,  // Inclure le token CSRF ici
+			'scope' => 'r_organization_social r_basicprofile r_organization_admin profile email',  // Mise à jour des scopes
+			'state' => $csrfToken,
 		]);
 
 		return $this->redirect($url . '?' . $queryParams);
 	}
 
 
-	private function getAccessToken(string $code): ?string
+
+	private function getAccessToken(string $code, ?string $refreshToken = null): ?string
 	{
 		$url = "https://www.linkedin.com/oauth/v2/accessToken";
-		$response = $this->httpClient->request('POST', $url, [
-			'body' => [
-				'grant_type' => 'authorization_code',
-				'code' => $code,
-				'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
-				'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
-				'client_secret' => $_ENV['LINKEDIN_CLIENT_SECRET'],
-			],
-		]);
+		$params = [
+			'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
+			'client_secret' => $_ENV['LINKEDIN_CLIENT_SECRET'],
+			'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
+		];
 
+		if ($refreshToken) {
+			$params['grant_type'] = 'refresh_token';
+			$params['refresh_token'] = $refreshToken;
+		} else {
+			$params['grant_type'] = 'authorization_code';
+			$params['code'] = $code;
+		}
+
+		$response = $this->httpClient->request('POST', $url, ['body' => $params]);
 		$data = $response->toArray();
+
+		// Stocker le refresh token si disponible
+		if (isset($data['refresh_token'])) {
+			// Stocker le refresh token dans la session ou un endroit sécurisé
+		}
 
 		return $data['access_token'] ?? null;
 	}
+	private function getOrganizationLogo(string $accessToken, string $logoUrn): ?string
+	{
+		// Remplacement pour obtenir le bon format d'URN
+		$imageUrn = str_replace('digitalmediaAsset', 'image', $logoUrn);
+
+		$url = "https://api.linkedin.com/rest/images/$imageUrn";
+
+		$response = $this->httpClient->request('GET', $url, [
+			'headers' => [
+				'Authorization' => 'Bearer ' . $accessToken,
+				'LinkedIn-Version:202309'
+			],
+		]);
+
+		return $response->getContent(); // Ou une autre méthode pour extraire l'URL ou le contenu de l'image
+	}
+
+
+
 }
