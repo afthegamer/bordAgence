@@ -17,12 +17,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class GoogleController extends AbstractController
 {
 	private Client $client;
-	public function __construct(private GoogleClientService $googleClientService)
+	public function __construct(
+		private GoogleClientService $googleClientService
+	)
 	{}
 
 
 	#[Route('/google', name: 'google_index')]
-	public function index(SessionInterface $session, EmailService $emailService): Response
+	public function index(
+		SessionInterface $session,
+		EmailService $emailService
+	): Response
 	{
 		$this->googleClientService->refreshTokenIfNeeded($session);
 
@@ -44,7 +49,10 @@ class GoogleController extends AbstractController
 				'bilan',
 			];
 
-			$emails = $emailService->getEmailsFromLastDays($addresses,$subjectFilters);
+			$emails = $emailService->getEmailsFromLastDays(
+				$addresses,
+				$subjectFilters
+			);
 
 			return $this->render('google/index.html.twig', [
 				'emails' => $emails,

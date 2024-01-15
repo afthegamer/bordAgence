@@ -25,3 +25,99 @@ curl --request GET \
 curl --request GET \
   --header "Authorization: Bearer ya29.a0AfB_byDNQy0GCQWoDD3si2FqCUsmOmBTL37GrdvfSnxY_S1dXWlY9UCn5DzrriKnOWbLiO7arFuiv-DGqHtB-y8ex93MU2bq-ftMyyf8iEHJZ5Mz_i1Rtm18GIA1Hn1FNPqTTg5MhHWOVgFwBKpsxbqX1HL91M3piPGPaCgYKAeMSARMSFQHGX2MiKFZveQfWewfMZJ-MDdB2vg0171" \
   https://gmail.googleapis.com/gmail/v1/users/me/messages/18ca1fb31f66eb65
+//parti linkedin
+//Naviguer vers l'URL d'Autorisation :
+https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=787kdalu01ijwz&redirect_uri=http%3A%2F%2Flocalhost%2Flinkedin%2Fposts&scope=r_organization_social%20w_organization_social&state=123456
+//lien reponse
+http://localhost/linkedin/posts?code=AQSu44o-EZ5P4wJaTFtsf2K6T7ZqA0KER7vBe9_srXHn3LNviznZamc9XhJgBbvf63MhYjLnkcnWAyPBUOJaUeh10c1GfCjGCHNyPA9UsPRujxlIimFE5WKrQ5HIl1e1pmYrY7u_i3puyb18brkFOXwiwoddcvLjDxo9BWfOEOQvLFCDaz1tZHEprqaqefoFv3Qn17mCGiJQZgDHOWk&state=123456
+//lien pour obtenir le token d'acces
+curl -X POST https://www.linkedin.com/oauth/v2/accessToken \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code&code=AQSu44o-EZ5P4wJaTFtsf2K6T7ZqA0KER7vBe9_srXHn3LNviznZamc9XhJgBbvf63MhYjLnkcnWAyPBUOJaUeh10c1GfCjGCHNyPA9UsPRujxlIimFE5WKrQ5HIl1e1pmYrY7u_i3puyb18brkFOXwiwoddcvLjDxo9BWfOEOQvLFCDaz1tZHEprqaqefoFv3Qn17mCGiJQZgDHOWk&redirect_uri=http%3A%2F%2Flocalhost%2Flinkedin%2Fposts&client_id=787kdalu01ijwz&client_secret=1QaWxuRGMw8U3uiv"
+//reponse
+{"access_token":"AQUfh2tHXoUCqCYBflVHjuSIttQuEUD_0CvLFYa5lxJLsCsFX1n6V_2qvwNeg-KXBQa3eq0e1galnyhzEcePYVL2q67T9QeDWoyPaFnQptAsIf-_Ha9FC3auy4tn-cLbCRkK1yRuWZxkHBK-u2SRvKW2qTTQEwWI694u6E7EuD2QIrfPWZvXGlIpSpyNS5z95_QV4X-2451iBOb7AVdBo2jvrP76RBO9a6L7y0fR2pY64HcbZ_OMvD0rqDAfs9rUfmJOBA9f806iiQSv2Vt4rGfxYxWfaT2mnk
+mvxYFZ8EZLJb9XQqscxH5-DOcW7MjoMS_WxWnuwP3zWYBTp2c71mKVpN2POA","expires_in":5183999,"refresh_token":"AQXbfFrfRAQDKwzLp2Shza_lQNRWA_EdMLgHTqDKOaxhxcSSpAGi8lfu1IRKYNJYWztSxwNCosCUpum79czvB5SewaB_LxIwSQroPXMxPt6iN5QiLfDfZbONBETnB1XwyE1pB-s6rHjaytBLqUuCY0UTWerg-22amRfZqjSJDEmcJWeioco62EexKlDZibi_fb4hmKJiOWf7gVj_d7maU3f5KcJjbvBP419TKkE_WbbGkuoWCk6V2ZtIAaSiEzXsNAiblt60BCBF10luUpXXC0rJiDk6A5QeJOKn3YErpbpg6dJtY3GUh5m1VtWzjArY-8BSAF42GdUd5u3h_zV0qZrAolZ7OQ","refresh_token_expires_in":31535999,"scope":"r_organization_social,w_organization_social"}bdossantos@DESKTOP-3I3RR75:~/bordAgence$
+//access token
+curl -X POST https://www.linkedin.com/oauth/v2/accessToken \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=authorization_code&code=[Votre_Code_d'Autorisation]&redirect_uri=http%3A%2F%2Flocalhost%2Flinkedin%2Fposts&client_id=787kdalu01ijwz&client_secret=1QaWxuRGMw8U3uiv"
+
+//reponse
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{"paging":
+    {"
+        start":0,
+        "count":10,
+        "links":[
+            {"type":"application/json",
+                "rel":"next",
+                "href":"/v2/shares?count=10&owners=urn%3Ali%3Aorganization%3A100827710&q=owners&start=2"}
+                ],"total":3},
+                "elements":
+                    [{"owner":"urn:li:organization:100827710",
+                        "activity":"urn:li:activity:7147932462554247168",
+                        "edited":false,
+                        "created":
+                        {"actor":"urn:li:person:lfoPtXJ6R_",
+                        "time":1704199901202},
+                        "text":{"text":"test 2 "},
+                        "lastModified":{"actor":"urn:li:person:lfoPtXJ6R_","time":1704199901202},"id":"7147932461824450560","distribution":{"linkedInDistributionTarget":{"visibleToGuest":true}},"content":{"contentEntities":[{"description":"","entityLocation":"https://media.licdn.com/dms/image/D4E22AQEfB1KHYfZJAA/feedshare-shrink_800/0/1704199899987?e=1707955200&v=beta&t=KGGJ7qsr8D4LpXfVfnepMJwZak_yFjjaLHzcGBv-1t8","thumbnails":[{"imageSpecificContent":{"width":200,"height":200},"resolvedUrl":"https://media.licdn.com/dms/image/D4E22AQEfB1KHYfZJAA/feedshare-shrink_800/0/1704199899987?e=1707955200&v=beta&t=KGGJ7qsr8D4LpXfVfnepMJwZak_yFjjaLHzcGBv-1t8"}],"entity":"urn:li:digitalmediaAsset:D4E22AQEfB1KHYfZJAA"}],"description":"","shareMediaCategory":"RICH"}},{"owner":"urn:li:organization:100827710","activity":"urn:li:activity:7147932380744339456","edited":false,"created":{"actor":"urn:li:person:lfoPtXJ6R_","time":1704199881709},"text":{"text":"test"},"lastModified":{"actor":"urn:li:person:lfoPtXJ6R_","time":1704199881709},"id":"7147932379993575424","distribution":{"linkedInDistributionTarget":{"visibleToGuest":true}},"content":{"contentEntities":[{"description":"","entityLocation":"https://media.licdn.com/dms/image/D4E22AQF4dFcPpZyM9A/feedshare-shrink_800/0/1704199880304?e=1707955200&v=beta&t=GF1223Li8140sDoZqyFQncTe_2Vv4n9lDqUtLiQQ_to","thumbnails":[{"imageSpecificContent":{"width":200,"height":200},"resolvedUrl":"https://media.licdn.com/dms/image/D4E22AQF4dFcPpZyM9A/feedshare-shrink_800/0/1704199880304?e=1707955200&v=beta&t=GF1223Li8140sDoZqyFQncTe_2Vv4n9lDqUtLiQQ_to"}],"entity":"urn:bdossantos@DESKTOP-3I3RR75:~/bordbdossantos@DESKTOP-3I3RR75:~/bordAgence$
+
+
+
+
+
+
+
+
+
