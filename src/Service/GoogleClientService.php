@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Google\Client;
+use Google_Service_Calendar;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class GoogleClientService
@@ -15,12 +16,17 @@ class GoogleClientService
 		$this->client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
 		$this->client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
 		$this->client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URI']);
-		$this->client->addScope('https://www.googleapis.com/auth/gmail.readonly');
+		$this->client->addScope(\Google_Service_Gmail::GMAIL_READONLY);
+		$this->client->addScope(\Google_Service_Calendar::CALENDAR_READONLY);
 	}
 
 	public function getClient(): Client
 	{
 		return $this->client;
+	}
+	public function setAccessToken($accessToken): void
+	{
+		$this->client->setAccessToken($accessToken);
 	}
 
 	public function refreshTokenIfNeeded(SessionInterface $session)

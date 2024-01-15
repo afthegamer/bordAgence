@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\CalendarService;
 use App\Service\EmailService;
 use App\Service\GoogleClientService;
 use Google\Client;
@@ -16,11 +17,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GoogleController extends AbstractController
 {
-	private Client $client;
+
 	public function __construct(
 		private GoogleClientService $googleClientService
-	)
-	{}
+	){}
 
 
 	#[Route('/google', name: 'google_index')]
@@ -62,9 +62,6 @@ class GoogleController extends AbstractController
 		return $this->redirectToRoute('google_login');
 	}
 
-
-
-
 	#[Route('/google/login', name: 'google_login')]
 	public function googleLogin()
 	{
@@ -75,7 +72,6 @@ class GoogleController extends AbstractController
 
 		return $this->redirect($authUrl);
 	}
-
 
 	#[Route('/callback', name: 'google_callback', methods: ['GET'])]
 	public function googleCallback(Request $request, SessionInterface $session)
@@ -94,35 +90,35 @@ class GoogleController extends AbstractController
 		return $this->redirectToRoute('google_login');
 	}
 
-	public function getEmails(Client $client)
+	#[Route('/calendar/events', name: 'calendar_events')]
+	public function calendarEvents(SessionInterface $session, CalendarService $calendarService): Response
 	{
+		// Récupérer le token d'accès de la session
+		$accessToken = $session->get('access_token');
+
+		// Vérifier si l'utilisateur est authentifié et dispose d'un token d'accès
+		if (!$accessToken) {
+			// Si non, rediriger vers la page de login Google
+			return $this->redirectToRoute('google_login');
+		}
+
+		// Rafraîchir le token si nécessaire
+		$this->googleClientService->refreshTokenIfNeeded($session);
+
+		// Mettre à jour le token d'accès pour le client Google
+		$this->googleClientService->setAccessToken($accessToken);
+
 		try {
-			// Assurez-vous que le client Google est correctement authentifié
-			$service = new Gmail($client);
-
-			// Récupérer la liste des emails
-			$user = 'me';
-			$list = $service->users_messages->listUsersMessages($user);
-
-			// Récupérer le premier email de la liste
-			if ($list->getMessages() && count($list->getMessages()) > 0) {
-				$messageId = $list->getMessages()[0]->getId(); // Id du premier email
-				$email = $service->users_messages->get($user, $messageId);
-
-				// Extraire et afficher une information spécifique, par exemple, l'objet
-				foreach ($email->getPayload()->getHeaders() as $header) {
-					if ($header->getName() === 'Subject') {
-						return new Response('Sujet de l\'email : ' . $header->getValue());
-					}
-				}
-			}
-
-			return new Response('Aucun email trouvé.');
+			// Récupérer les événements du calendrier à l'aide du CalendarService
+			$events = $calendarService->getEvents();
+//			dd($events);
+			return $this->render('calendar/events.html.twig', [
+				'events' => $events,
+			]);
 		} catch (\Exception $e) {
-			// Gestion des erreurs
-			return new Response('Erreur lors de la récupération des emails : ' . $e->getMessage());
+			// Gestion des erreurs, par exemple, un problème avec l'API Google
+			// Vous pouvez également logger cette erreur pour un débogage ultérieur
+			return new Response('Erreur lors de la récupération des événements du calendrier : ' . $e->getMessage());
 		}
 	}
-
-
 }
