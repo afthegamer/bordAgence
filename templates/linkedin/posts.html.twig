@@ -59,6 +59,9 @@
                                         {{ organizationName }}
                                     </h5>
                                     <p class="card-text">{{ post.text.text }}</p>
+                                    {% if post.resharedShare is defined %}
+                                        <iframe src="https://www.linkedin.com/embed/feed/update/{{ post.resharedShare }}" height="500" width="600" allowfullscreen="" title="Post intégré"></iframe>
+                                    {% endif %}
                                     {% if post.content.contentEntities is defined and post.content.contentEntities|length > 0 %}
                                         <div class="post-images">
                                             {% for entity in post.content.contentEntities %}
@@ -87,6 +90,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('js/dateTime.js') }}"></script>
+    <script src="{{ asset('JS/dateTime.js') }}"></script>
     <!-- ... Autres scripts JS si nécessaire ... -->
 {% endblock %}

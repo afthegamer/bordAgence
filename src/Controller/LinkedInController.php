@@ -2,102 +2,72 @@
 
 namespace App\Controller;
 
+use App\Service\LinkedInAuthService;
 use App\Service\LinkedinClientService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 
 class LinkedInController extends AbstractController
 {
-
+	// Constructeur avec injection de dépendances pour les services nécessaires
 	public function __construct(
-		private HttpClientInterface $httpClient,
 		private CsrfTokenManagerInterface $csrfTokenManager,
-		public LinkedinClientService $linkedinClientService
-	)
-	{}
+		public LinkedinClientService $linkedinClientService,
+		public LinkedInAuthService $linkedInAuthService
+	){}
 
+	// Route pour récupérer et afficher les posts LinkedIn
 	#[Route('/linkedin/posts', name: 'linkedin_posts')]
 	public function fetchLinkedInPosts(Request $request): Response
 	{
-		$session = $request->getSession();
-		$accessToken = $session->get('linkedin_access_token');
-		$refreshToken = $session->get('linkedin_refresh_token');
+		// Obtention du token d'accès via LinkedInAuthService
+		$accessToken = $this->linkedInAuthService->obtainOrRefreshAccessToken($request);
 
-		if (!$accessToken || $this->linkedinClientService->isAccessTokenExpired($session)) {
-			if ($code = $request->query->get('code')) {
-				$csrfToken = $request->query->get('state');
-				$sessionCsrfToken = $session->get('linkedin_csrf_token');
-				if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('linkedin_auth', $csrfToken)) || $csrfToken !== $sessionCsrfToken) {
-					throw new \Exception("Invalid CSRF token");
-				}
-
-				$tokens = $this->linkedinClientService->getAccessToken($code, $refreshToken, $session);
-				$accessToken = $tokens['access_token'] ?? null;
-
-				if ($accessToken) {
-					$session->set('linkedin_access_token', $accessToken);
-					// Redirection pour nettoyer l'URL après la connexion
-					return $this->redirectToRoute('linkedin_posts');
-				}
-			} else {
-				return $this->redirectToRoute('linkedin_oauth');
-			}
+		// Gestion du cas où aucun token n'est obtenu
+		if (!$accessToken) {
+			return $this->redirectToRoute('linkedin_oauth');
 		}
 
-		// Récupération des posts de l'organisation
+		// Récupération des posts et des détails de l'organisation via LinkedinClientService
 		$organizationId = $_ENV['LINKEDIN_ORGANIZATION_ID'];
-		$postsUrl = "https://api.linkedin.com/v2/shares?q=owners&owners=urn:li:organization:$organizationId&count=12&sortBy=LAST_MODIFIED";
-		$postsResponse = $this->linkedinClientService->makeGetRequest(
-			$postsUrl,
-			$accessToken
-		)->toArray();
+		$postsResponse = $this->linkedinClientService->fetchOrganizationPosts($accessToken, $organizationId);
+		$organizationDetails = $this->linkedinClientService->fetchOrganizationDetails($accessToken, $organizationId);
 
-		// Récupération du nom de l'organisation
-		$organizationUrl = "https://api.linkedin.com/v2/organizations/$organizationId";
-		$organizationResponse = $this->linkedinClientService->makeGetRequest(
-			$organizationUrl,
-			$accessToken
-		)->toArray();
-		$organizationName = $organizationResponse['localizedName'] ?? 'Nom Inconnu';
+		// Récupération de l'URL du logo de l'organisation
+		$logoUrl = $this->linkedinClientService->getOrganizationLogoUrl($organizationDetails, $accessToken);
+		$decodeLogoUrl = json_decode($logoUrl);
 
-		// Récupération du logo de l'organisation
-		$logoUrn = $organizationResponse['logoV2']['original'] ?? null;
-		$logoUrl = json_decode(
-			$this->linkedinClientService->getOrganizationLogo(
-				$accessToken,
-				$logoUrn)
-		);
-
+		// Rendu du template avec les données des posts et de l'organisation
 		return $this->render('linkedin/posts.html.twig', [
 			'posts' => $postsResponse['elements'],
-			'organizationName' => $organizationName,
-			'logoUrl' => $logoUrl,
+			'organizationName' => $organizationDetails['localizedName'] ?? 'Nom Inconnu',
+			'logoUrl' => $decodeLogoUrl,
 		]);
 	}
 
-
-
-
+	// Route pour initier le processus d'authentification OAuth2 avec LinkedIn
 	#[Route('/linkedin/oauth', name: 'linkedin_oauth')]
 	public function redirectToLinkedIn(Request $request): Response
 	{
+		// Création et stockage du jeton CSRF
 		$csrfToken = $this->csrfTokenManager->getToken('linkedin_auth')->getValue();
 		$request->getSession()->set('linkedin_csrf_token', $csrfToken);
 
+		// Construction de l'URL pour la redirection vers LinkedIn
 		$url = "https://www.linkedin.com/oauth/v2/authorization";
 		$queryParams = http_build_query([
 			'response_type' => 'code',
 			'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
 			'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
-			'scope' => 'r_organization_social r_basicprofile r_organization_admin profile email',  // Mise à jour des scopes
+			'scope' => 'r_organization_social r_basicprofile r_organization_admin profile email',
 			'state' => $csrfToken,
 		]);
 
+		// Redirection vers l'URL d'authentification LinkedIn
 		return $this->redirect($url . '?' . $queryParams);
 	}
 }
