@@ -84,7 +84,7 @@ class GoogleController extends AbstractController
 				if (isset($accessToken['refresh_token'])) {
 					$session->set('refresh_token', $accessToken['refresh_token']);
 				}
-				return $this->redirectToRoute('google_index');
+				return $this->redirectToRoute('app_home');
 			}
 		}
 		return $this->redirectToRoute('google_login');

@@ -21,7 +21,7 @@
         <!-- Sections Emails Gmail et Posts LinkedIn -->
         <div class="row mb-4">
             <!-- Section Emails Gmail -->
-            <div class="col-md-6">
+            {#<div class="col-md-6">
                 <div class="card shadow bg-light mb-4">
                     <div class="card-header bg-success text-white">
                         <h4 class="m-0">Emails Gmail</h4>
@@ -39,6 +39,11 @@
                         </li>
                     </ul>
                 </div>
+            </div>#}
+
+
+            <div class="col-md-6">
+                {% include 'calendar/events.html.twig' %}
             </div>
 
             <!-- Section Posts LinkedIn -->

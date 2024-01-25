@@ -3,25 +3,8 @@
 {% block title %}Tableau de Bord{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <!-- Section Date -->
-    <div class="row mb-4 justify-content-center">
-        <div class="col-md-8">
-            <div class="card text-white bg-primary mb-3 text-center shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Date Actuelle</h5>
-                    <p class="card-text" id="currentTime" style="font-size: 1.5em; font-weight: bold;">
-                        <!-- Le contenu de cette div sera remplacé par le script JavaScript -->
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Sections Emails Gmail et Événements du Calendrier Google -->
-    <div class="row mb-4">
-        <!-- Section Emails Gmail -->
-        <div class="col-md-6">
+        <!-- Section Calendar -->
             <div class="card shadow bg-light mb-4">
                 <div class="card-header bg-warning text-white">
                     <h4 class="m-0">Événements du Calendrier</h4>
@@ -50,30 +33,9 @@
                     {% endfor %}
                 </ul>
             </div>
-        </div>
 
-        <div class="col-md-6">
-            <div class="card shadow bg-light mb-4">
-                <div class="card-header bg-info text-white">
-                    <h4 class="m-0">Posts LinkedIn</h4>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item my-2 shadow bg-white">
-                        <strong>Posté par:</strong> Alice Martin <br>
-                        <small>Découvrez les dernières tendances en matière d'intelligence artificielle...</small>
-                    </li>
-                    <li class="list-group-item my-2 shadow bg-white">
-                        <strong>Posté par:</strong> Lucas Bernard <br>
-                        <small>Retour sur mon expérience en tant que développeur freelance...</small>
-                    </li>
-                    <!-- Ajoutez plus de posts LinkedIn ici si nécessaire -->
-                </ul>
-            </div>
-        </div>
-    </div>
 
     <!-- ... Autres sections ... -->
-</div>
 {% endblock %}
 
 {% block javascripts %}
