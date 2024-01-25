@@ -43,21 +43,7 @@
 
             <!-- Section Posts LinkedIn -->
             <div class="col-md-6">
-                <div class="card shadow bg-light mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h4 class="m-0">Posts LinkedIn</h4>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item my-2 shadow bg-white">
-                            <strong>Posté par:</strong> Alice Martin <br>
-                            <small>Découvrez les dernières tendances en matière d'intelligence artificielle et leur impact sur l'industrie...</small>
-                        </li>
-                        <li class="list-group-item my-2 shadow bg-white">
-                            <strong>Posté par:</strong> Lucas Bernard <br>
-                            <small>Retour sur mon expérience en tant que développeur freelance : les hauts et les bas...</small>
-                        </li>
-                    </ul>
-                </div>
+                {% include 'linkedin/posts.html.twig' %}
             </div>
         </div>
 
@@ -67,6 +53,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('js/dateTime.js') }}"></script>
+    <script src="{{ asset('JS/dateTime.js') }}"></script>
     <!-- ... Autres scripts JS si nécessaire ... -->
 {% endblock %}

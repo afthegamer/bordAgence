@@ -34,13 +34,37 @@ class LinkedInController extends AbstractController
 
 		// Récupération des posts et des détails de l'organisation via LinkedinClientService
 		$organizationId = $_ENV['LINKEDIN_ORGANIZATION_ID'];
-		$postsResponse = $this->linkedinClientService->fetchOrganizationPosts($accessToken, $organizationId);
-		$organizationDetails = $this->linkedinClientService->fetchOrganizationDetails($accessToken, $organizationId);
+		$postsResponse = $this->linkedinClientService->fetchOrganizationAuthorPosts(
+			$accessToken,
+			$organizationId,
+			12
+		);
+		$organizationDetails = $this->linkedinClientService->fetchOrganizationDetails(
+			$accessToken,
+			$organizationId
+		);
 
 		// Récupération de l'URL du logo de l'organisation
-		$logoUrl = $this->linkedinClientService->getOrganizationLogoUrl($organizationDetails, $accessToken);
+		$logoUrl = $this->linkedinClientService->getOrganizationLogoUrl(
+			$organizationDetails,
+			$accessToken
+		);
 		$decodeLogoUrl = json_decode($logoUrl);
 
+		// Traitement des posts
+		$this->linkedinClientService->processPosts(
+			$postsResponse['elements'],
+			$accessToken
+		);
+
+		// Traitement des reshared posts
+		$this->linkedinClientService->processResharedPosts(
+			$postsResponse['elements'],
+			$accessToken
+		);
+		$postsResponse['elements'] = $this->linkedinClientService->formatPostContent($postsResponse['elements']);
+
+//		dd($postsResponse);
 		// Rendu du template avec les données des posts et de l'organisation
 		return $this->render('linkedin/posts.html.twig', [
 			'posts' => $postsResponse['elements'],
@@ -63,7 +87,7 @@ class LinkedInController extends AbstractController
 			'response_type' => 'code',
 			'client_id' => $_ENV['LINKEDIN_CLIENT_ID'],
 			'redirect_uri' => $_ENV['LINKEDIN_REDIRECT_URI'],
-			'scope' => 'r_organization_social r_basicprofile r_organization_admin profile email',
+			'scope' => 'r_organization_social r_basicprofile r_organization_admin profile email openid r_ads_reporting',
 			'state' => $csrfToken,
 		]);
 

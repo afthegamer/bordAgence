@@ -1,77 +1,76 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de Bord{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <!-- Section Date -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-8">
-                <div class="card text-white bg-primary mb-3 text-center shadow">
-                    <div class="card-body">
-                        <h5 class="card-title">Date Actuelle</h5>
-                        <p class="card-text" id="currentTime" style="font-size: 1.5em; font-weight: bold;">
-                            <!-- Le contenu de cette div sera remplacé par le script JavaScript -->
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sections Emails Gmail et Posts LinkedIn -->
-        <div class="row mb-4">
-            <!-- Section Emails Gmail -->
-            <div class="col-md-6">
-                <div class="card shadow bg-light mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="m-0">Emails Gmail</h4>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item my-2 shadow bg-white">
-                            <strong>De:</strong> Jean Dupont <br>
-                            <strong>Sujet:</strong> Réunion de projet le 10/01 <br>
-                            Cher collègue, pourrions-nous nous rencontrer pour discuter du projet XYZ...
-                        </li>
-                        <li class="list-group-item my-2 shadow bg-white">
-                            <strong>De:</strong> Marie Curie <br>
-                            <strong>Sujet:</strong> Invitation à la conférence scientifique <br>
-                            Bonjour, je suis ravie de vous inviter à la conférence internationale sur...
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-
             <!-- Section Posts LinkedIn -->
-            <div class="col-md-6">
-                <div class="card shadow mb-4">
+                <div class="card shadow bg-light mb-6">
                     <div class="card-header bg-info text-white">
                         <h4 class="m-0">Posts LinkedIn</h4>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0 ">
                         {% for post in posts %}
-                            <div class="card mb-2">
-                                <!-- Utilisez les classes Bootstrap pour la mise en forme -->
+                            <div class="card shadow mb-2">
+{#                                <!-- Utilisez les classes Bootstrap pour la mise en forme -->#}
                                 <div class="card-body">
-                                    <!-- Utilisez l'image de profil si disponible -->
+{#                                    <!-- Utilisez l'image de profil si disponible -->#}
                                     <h5 class="card-title">
                                         <img src="{{ logoUrl.downloadUrl }}" alt="Profil" class="rounded-circle mr-2" style="width: 40px; height: 40px;">
                                         {{ organizationName }}
                                     </h5>
-                                    <p class="card-text">{{ post.text.text }}</p>
-                                    {% if post.resharedShare is defined %}
-                                        <iframe src="https://www.linkedin.com/embed/feed/update/{{ post.resharedShare }}" height="500" width="600" allowfullscreen="" title="Post intégré"></iframe>
+                                    <p class="card-text">{{ post.commentary }}</p>
+                                    {% if post.resharedPostDetails is defined and post.resharedPostDetails is not null %}
+                                    {% if  post.resharedPostDetails.authorDetails is defined and post.resharedPostDetails.authorDetails is not null%}
+                                        <h5 class="card-title">
+                                            {% if post.resharedPostDetails.authorDetails.logoUrl.downloadUrl is defined %}
+                                            <img src="{{ post.resharedPostDetails.authorDetails.logoUrl.downloadUrl }}" alt="Profil" class="rounded-circle mr-2" style="width: 40px; height: 40px;">
+                                            {% endif %}
+                                            {% if post.resharedPostDetails.authorDetails.logoUrl.downloadUrl is defined %}
+                                                {{ post.resharedPostDetails.authorDetails.vanityName }}
+                                            {% endif %}
+                                            {% if post.resharedPostDetails.authorDetails.results is defined %}
+                                            {{ post.resharedPostDetails.authorDetails.results |last .localizedName }}
+                                        {% endif %}
+                                        </h5>
                                     {% endif %}
-                                    {% if post.content.contentEntities is defined and post.content.contentEntities|length > 0 %}
-                                        <div class="post-images">
-                                            {% for entity in post.content.contentEntities %}
-                                                {% if entity.entityLocation is defined %}
-                                                    <img src="{{ entity.entityLocation }}" alt="Image du post LinkedIn" class="img-fluid mt-2">
-                                                {% endif %}
-                                            {% endfor %}
+
+                                        <div class="card-body">
+                                            <p class="card-text">{{ post.resharedPostDetails.commentary | raw }}</p>
+{#                                            <!-- Affichage des médias du post reshared -->#}
+                                            {% if post.resharedPostDetails.content.media is defined %}
+
+                                                <div class="post-media">
+                                                        {% if post.resharedPostDetails.content.media.mediaUrl is defined %}
+                                                            {% if post.resharedPostDetails.content.media.isVideo is same as(true) %}
+                                                                <!-- Affichage pour une vidéo -->
+                                                                <video src="{{ post.resharedPostDetails.content.media.mediaUrl }}" controls class="img-fluid mt-2"></video>
+                                                            {% else %}
+                                                                <!-- Affichage pour une image -->
+                                                                <img src="{{ post.resharedPostDetails.content.media.mediaUrl }}" alt="{{ post.resharedPostDetails.content.media.altText|default('Media image') }}" class="img-fluid mt-2">
+                                                            {% endif %}
+                                                        {% endif %}
+                                                </div>
+                                            {% endif %}
                                         </div>
                                     {% endif %}
-                                    <!-- Ici, ajoutez les boutons J'aime, Commenter, etc. si nécessaire -->
+                                    {% if post.reshareContext is defined and post.resharedPostDetails is null %}
+                                        <iframe id="resahard" src="https://www.linkedin.com/embed/feed/update/{{ post.reshareContext.root }}" class="w-auto; " style="height: 30em;overflow: hidden;" allowfullscreen="" title="Post intégré"></iframe>
+                                    {% endif %}
+
+                                    {% if post.content is defined and post.content.media is defined %}
+                                        <div class="post-media">
+                                            {% if post.content.media.mediaUrl is defined %}
+                                                {% if post.content.media.isVideo %}
+                                                    <!-- Affichage pour une vidéo -->
+                                                    <video src="{{ post.content.media.mediaUrl }}" controls class="img-fluid mt-2"></video>
+                                                {% else %}
+{#                                                    <!-- Affichage pour une image -->#}
+                                                    <img src="{{ post.content.media.mediaUrl }}" alt="{{ post.content.media.altText|default('Media image') }}" class="img-fluid mt-2">
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+
+{#                                    <!-- Ici, ajoutez les boutons J'aime, Commenter, etc. si nécessaire -->#}
                                 </div>
                             </div>
                         {% else %}
@@ -81,15 +80,13 @@
                         {% endfor %}
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Vous pouvez continuer à ajouter d'autres sections en deux colonnes ici... -->
 
-    </div>
 {% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('JS/dateTime.js') }}"></script>
-    <!-- ... Autres scripts JS si nécessaire ... -->
-{% endblock %}
+{#{% block javascripts %}#}
+{#    <script src="{{ asset('JS/dateTime.js') }}"></script>#}
+{#    <!-- ... Autres scripts JS si nécessaire ... -->#}
+{#{% endblock %}#}
+
+
